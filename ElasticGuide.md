@@ -55,7 +55,7 @@ Accedere al file di configurazione di Elasticsearch
 
 > ``sudo vi /etc/elasticsearch/elasticsearch.yml``
 
-### Configurazione sul nodo Master
+### Configurazione del nodo Master
 
 ``` 
 cluster.initial_master_nodes: ["ip_nodo_master"]
