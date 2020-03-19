@@ -2,7 +2,7 @@
 
 
 ## Riferimenti
-- [ElasticSearch cluster in production (3 nodes)](https://medium.com/@diogo.fg.pinheiro/elasticsearch-cluster-in-production-3-nodes-668221bbd952)
+- [Elasticsearch cluster in production (3 nodes)](https://medium.com/@diogo.fg.pinheiro/elasticsearch-cluster-in-production-3-nodes-668221bbd952)
 - [Install Elasticsearch with Debian Package](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/deb.html#deb)
 
 
