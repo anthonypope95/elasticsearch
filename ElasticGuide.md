@@ -112,7 +112,7 @@ node.data: true
 
 # enter the private IP and port of your node (the same ip as your machine)
 
-network.host: 10.10.10.101
+network.host: ip_nodo
 http.port: 9200
 
 # detail the private IPs of your nodes:
