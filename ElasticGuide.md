@@ -269,7 +269,7 @@ Nel seguente esempio è stato parsato un file .csv
 
 ## Lanciare Logstash
 
-Recarsi nel seguente percorso: 
+Recarsi nella seguente directory: 
 
 > ``cd /usr/share/logstash``
 
