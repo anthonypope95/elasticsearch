@@ -16,7 +16,7 @@ _Nel caso in cui i dati debbano essere caricati nel DB relazionale, come li cari
 
 4. Scelta delle interrogazioni da effettuare su tutti e tre i sistemi (vanno effettuate le medesime interrogazioni su tutti e tre i sistemi).
 
-_Tenere attivo durante i test un servizio per volta_
+_Durante i test tenere attivo un servizio per volta_
 
 5. Effettuare interrogazioni sui sistemi.
 
