@@ -161,6 +161,10 @@ Eseguire il seguente comando
 
 ## Configurazione Kibana
 
+Accedere al file di configurazione di Kibana
+
+> ``sudo vi /etc/kibana/kibana.yml``
+
 
 ```
 # Kibana is served by a back end server. This setting specifies the port to use.
