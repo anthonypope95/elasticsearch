@@ -10,6 +10,9 @@
 
 ## Prerequisiti
 
+Spegnere il servizio firewalld
+> ``systemctl stop firewalld``
+
 Installare Java
 
 ### In debian
