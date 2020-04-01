@@ -95,7 +95,7 @@ REDHAT_SUPPORT_PRODUCT_VERSION="7"
 CentOS Linux release 7.7.1908 (Core)
 CentOS Linux release 7.7.1908 (Core)
 ```
-
+---
 ## Fase Pre-Test
 
 #### Sono stati caricati all'interno di Elasticsearch degli oggetti JSON prelevati da un file data.json
