@@ -96,6 +96,7 @@ CentOS Linux release 7.7.1908 (Core)
 CentOS Linux release 7.7.1908 (Core)
 ```
 ---
+
 ## Fase Pre-Test
 
 #### Sono stati caricati all'interno di Elasticsearch degli oggetti JSON prelevati da un file data.json
@@ -137,7 +138,8 @@ output {
 
 ### Totale numero eventi presenti nel file data.json : 62.206
 
-### Nota: i test delle performance sono stati eseguiti utilizzando (mantenendo attivo) un servizio per volta (Elasticsearch e Kibana / Splunk)
+### Nota: i test delle performance sono stati eseguiti utilizzando (mantenendo attivo) un servizio per volta (Elasticsearch e Kibana / Splunk).
+### È stata utilizzata una configurazione di Elasticsearch di tipo single node.
 
 
 ---
