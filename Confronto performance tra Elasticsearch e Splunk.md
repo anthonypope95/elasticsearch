@@ -367,7 +367,7 @@ Restituirà il seguente output
 
 #### Risultato:
 #### The total time the request took: 577 ms = 0.577 s
-#### Query time: 94 ms = 0.940 s
+#### Query time: 94 ms = 0.094 s
 #### Total hits: 242
 
 ---
@@ -423,7 +423,7 @@ Riesecuzione dei test per verificare l'efficienza della cache
 
 #### Risultato:
 #### The total time the request took: 663 ms = 0.663 s
-#### Query time: 41 ms = 0.41 s
+#### Query time: 41 ms = 0.041 s
 #### Total hits: 242
 
 ---
