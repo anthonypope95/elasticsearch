@@ -216,7 +216,250 @@ output {
 #### Total hits: 546
 
 
+
 ---
 
-
 *Query Time: non include il tempo impiegato per spedire la richiesta o per parsarla nel browser.*
+
+---
+
+# Incremento prestazioni Elasticsearch
+
+## Riferimenti
+
+- [ELASTICSEARCH: OPTIMIZATION GUIDE](https://octoperf.com/blog/2018/09/21/optimizing-elasticsearch/)
+
+---
+### Disable Swap File
+
+Al fine di migliorare le prestazioni di Elasticsearch si raccomanda di disabilitare lo swap
+
+> sudo swapoff -a
+
+Recarsi infine nel seguente file e commentare le righe relative allo swap
+
+> vi /etc/fstab
+
+---
+
+### Lasciare abbastanza memoria per buff/cache
+
+```
+[root@localhost elasticsearch]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:           7821        5141         325         212        2354        1901
+Swap:             0           0           0
+```
+
+La memoria disponibile è di 7821 MB mentre quella in uso è 5141 MB
+
+
+---
+
+### Assicurarsi di avere una corretta mappatura dell'indice
+
+Assicurarsi di avere impostato il type keyword, adatto quando è necessario cercare documenti abbinando esattamente il valore fornito
+
+```
+{
+  "main" : {
+    "mappings" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date"
+        },
+        "@version" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "connectorname" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+  ...
+  ...
+``` 
+
+---
+### Ottimizza l'intervallo di aggiornamento (index.refresh_interval)
+
+L'intervallo di aggiornamento predefinito è 1s, il che significa che ogni secondo, tutti i nuovi documenti aggiunti saranno disponibili per la ricerca.
+Aumentare questo intervallo a 30 secondi.
+
+Query eseguita in Kibana
+``` 
+PUT /main/_settings
+ {
+    "index" : {
+        "refresh_interval" : "30s"
+    }
+    
+ }
+```
+---
+### Evitare lo swapping
+
+Lo swapping nei nodi di elasticsearch vengono controllati dalla proprietà bootstrap.memory_lock
+
+Più c'è swapping e maggiore il processo risulterà lento.
+
+Recarsi nel file 
+
+> vi /etc/elasticsearch/elasticsearch.yml
+
+e impostare la proprietà bootstrap.memory_lock su true 
+
+Per migiorare ulteriormente le prestazioni recarsi nel file di configurazione 
+
+>  vi /etc/sysconfig/elasticsearch 
+
+e rendere disponibile sufficiente ES_HEAP_SIZE  
+
+---
+
+### Controllare processori rilevati e processori allocati
+
+
+Eseguire la seguente query in Kibana
+
+> GET _nodes/os
+
+Restituirà il seguente output
+
+```
+...
+...
+
+   "os" : {
+        "refresh_interval_in_millis" : 1000,
+        "name" : "Linux",
+        "pretty_name" : "CentOS Linux 7 (Core)",
+        "arch" : "amd64",
+        "version" : "3.10.0-1062.el7.x86_64",
+        "available_processors" : 2,
+        "allocated_processors" : 2
+      }
+    }
+  }
+}
+```
+
+---
+
+## Testing 
+
+### Test 1
+
+### Query Elasticsearch utilizzata: 
+
+>_index:"main" AND port:8080
+
+
+#### Risultato:
+#### The total time the request took: 577 ms = 0.577 s
+#### Query time: 94 ms = 0.940 s
+#### Total hits: 242
+
+---
+
+### Test 2
+
+### Query Elasticsearch utilizzata:
+
+> _index:"main" AND port:80 AND pluginname:"Nessus SYN scanner"
+
+#### Risultato:
+#### The total time the request took: 1256 ms = 1.256 s
+#### Query time: 585 ms = 0.585 s
+#### Total hits: 776
+
+---
+
+### Test 3
+
+### Query Elasticsearch utilizzata:
+>_index:"main" AND connectorname:NESSUS_B AND protocol:TCP AND port:80
+
+#### Risultato:
+#### The total time the request took: 956 ms = 0.956 s
+#### Query time: 329 ms = 0.329 s
+#### Total hits: 631
+
+---
+
+### Test 4
+
+
+### Query Elasticsearch utilizzata:
+> _index:"main" AND protocol:UDP AND connectorname:TenableAlfa
+
+#### Risultato:
+#### The total time the request took: 772 ms = 0.772 s
+#### Query time: 255 ms = 0.255 s
+#### Total hits: 546
+
+---
+
+## Testing cache 
+
+Riesecuzione dei test per verificare l'efficienza della cache
+
+### Test 1
+
+### Query Elasticsearch utilizzata: 
+
+>_index:"main" AND port:8080
+
+
+#### Risultato:
+#### The total time the request took: 663 ms = 0.663 s
+#### Query time: 41 ms = 0.41 s
+#### Total hits: 242
+
+---
+
+### Test 2
+
+### Query Elasticsearch utilizzata:
+
+> _index:"main" AND port:80 AND pluginname:"Nessus SYN scanner"
+
+#### Risultato:
+#### The total time the request took: 887 ms = 0.887 s
+#### Query time: 221 ms = 0.221 s
+#### Total hits: 776
+
+---
+
+### Test 3
+
+### Query Elasticsearch utilizzata:
+>_index:"main" AND connectorname:NESSUS_B AND protocol:TCP AND port:80
+
+#### Risultato:
+#### The total time the request took: 858 ms = 0.858 s
+#### Query time: 273 ms = 0.273 s
+#### Total hits: 631
+
+---
+
+### Test 4
+
+
+### Query Elasticsearch utilizzata:
+> _index:"main" AND protocol:UDP AND connectorname:TenableAlfa
+
+#### Risultato:
+#### The total time the request took: 809 ms = 0.809 s
+#### Query time: 189 ms = 0.189 s
+#### Total hits: 546
