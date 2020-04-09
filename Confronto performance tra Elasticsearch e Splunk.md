@@ -532,7 +532,7 @@ L'output contenente i JSON Object (risultato della query) viene inserito nel fil
 
 res["took"] rappresenta il Query Time
 
-![GitHub Logo](images/immagine1.png)
+![GitHub Logo](/images/immagine1.png)
 
 ---
 
