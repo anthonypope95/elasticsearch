@@ -367,7 +367,7 @@ Restituirà il seguente output
 
 #### Risultato:
 #### The total time the request took: 577 ms = 0.577 s
-#### Query time: 94 ms = 0.094 s
+#### Query time: 94 ms = 0.940 s
 #### Total hits: 242
 
 ---
@@ -423,7 +423,7 @@ Riesecuzione dei test per verificare l'efficienza della cache
 
 #### Risultato:
 #### The total time the request took: 663 ms = 0.663 s
-#### Query time: 41 ms = 0.041 s
+#### Query time: 41 ms = 0.41 s
 #### Total hits: 242
 
 ---
@@ -463,3 +463,111 @@ Riesecuzione dei test per verificare l'efficienza della cache
 #### The total time the request took: 809 ms = 0.809 s
 #### Query time: 189 ms = 0.189 s
 #### Total hits: 546
+
+---
+
+
+# Query Splunk using Python 
+
+## Script Python utilizzato
+
+
+```python
+import requests
+
+data2 = {
+       'search': 'search index="main" port=80  pluginname="Nessus SYN scanner"',
+       'output_mode': 'json'
+     }
+response = requests.post('https://10.10.10.52:8089/servicesNS/admin/search/search/jobs/export', data=data2, verify=False, auth=('admin', 'password'))
+
+print(response)
+
+with open ('out.json', 'w', encoding="utf-8") as result:
+   result.write(response.text)
+```
+
+L'output contenente i JSON Object (risultato della query) viene inserito nel file out.json
+
+La request avvia un JOB le cui info sono accessibili al seguente link: https://10.10.10.52:8089/servicesNS/admin/search/search/jobs
+
+
+---
+
+# Query Elasticsearch using Python
+
+## Script Python utilizzato
+
+```python
+from elasticsearch import Elasticsearch
+import json
+
+es = Elasticsearch(
+    ['localhost', '10.10.10.52'],
+    http_auth=('elastic', 'password'),
+    scheme="http",
+    port=9200,
+)
+
+
+res = es.search(index="main", body={"query": { "bool": { "must": [  {"match": {"protocol":"UDP"}}, {"match": {"connectorname":"TenableAlfa"}}, ]  }   }},size=600)
+#print(res)
+#print("queryTime: ",res['took'] )
+print("Got %d Hits:" % res['hits']['total']['value'])
+
+#i = 0
+
+with open ('out.json', 'w', encoding="utf-8") as result:
+    for hit in res['hits']['hits']:
+        #print(hit,'\n')
+        result.write(json.dumps(res['hits']['hits']))
+        result.write('\n')
+        #result.write(str(i))
+        #i+=1
+
+print("queryTime:",res["took"])
+```
+
+L'output contenente i JSON Object (risultato della query) viene inserito nel file out.json
+
+res["took"] rappresenta il Query Time
+
+![GitHub Logo](images/immagine1.png)
+
+---
+
+# Confronto Performance Splunk/Elasticsearch eseguendo le query con script Python
+
+Nota: Full execution query time tiene conto anche dei tempi per l'invio della richiesta e per la ricezione della risposta
+
+### **Test1:** index="main" port=8080
+
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Query time(ms)           | 46                   | 29                           | 30                      |
+| Full execution query(ms) | 232,22               | 139,00                       | 165,00                  |
+
+
+### **Test2:** index="main" port=80 AND pluginname="Nessus SYN scanner"
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Query time(ms)           | 126                  | 96                           | 88                      |
+| Full execution query(ms) | 309,71               | 227,26                       | 218,24                  |
+
+
+### **Test3:** index="main" AND connectorname=NESSUS_B AND protocol=TCP AND port=80
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Query time(ms)           | 45                   | 54                           | 68                      |
+| Full execution query(ms) | 216,70               | 177,48                       | 193,23                  |
+
+
+### **Test4:** index="main" AND protocol=UDP AND connectorname=TenableAlfa
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Query time(ms)           | 41                   | 48                           | 56                      |
+| Full execution query(ms) | 254,36               | 205,29                       | 187,41                  |
