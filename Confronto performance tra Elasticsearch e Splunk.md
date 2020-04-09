@@ -544,7 +544,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| -------------------------|:--------------------:|:----------------------------:|:-----------------------:|
 | Query time(ms)           | 46                   | 29                           | 30                      |
 | Full execution query(ms) | 232,22               | 139,00                       | 165,00                  |
 
@@ -552,7 +552,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test2:** index="main" port=80 AND pluginname="Nessus SYN scanner"
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
 | Query time(ms)           | 126                  | 96                           | 88                      |
 | Full execution query(ms) | 309,71               | 227,26                       | 218,24                  |
 
@@ -560,7 +560,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test3:** index="main" AND connectorname=NESSUS_B AND protocol=TCP AND port=80
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
 | Query time(ms)           | 45                   | 54                           | 68                      |
 | Full execution query(ms) | 216,70               | 177,48                       | 193,23                  |
 
@@ -568,6 +568,6 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test4:** index="main" AND protocol=UDP AND connectorname=TenableAlfa
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|-----------------------------:|------------------------:|
+|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
 | Query time(ms)           | 41                   | 48                           | 56                      |
 | Full execution query(ms) | 254,36               | 205,29                       | 187,41                  |
