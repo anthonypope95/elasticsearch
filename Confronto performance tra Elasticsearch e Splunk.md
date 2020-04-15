@@ -474,12 +474,20 @@ Riesecuzione dei test per verificare l'efficienza della cache
 
 ```python
 import requests
+import time
+
 
 data2 = {
        'search': 'search index="main" port=80  pluginname="Nessus SYN scanner"',
        'output_mode': 'json'
      }
+
+now = time.time()
 response = requests.post('https://10.10.10.52:8089/servicesNS/admin/search/search/jobs/export', data=data2, verify=False, auth=('admin', 'password'))
+now2 = time.time()
+full_time = now2 - now
+print("full query time (s): ")
+print(full_time)
 
 print(response)
 
@@ -501,6 +509,7 @@ La request avvia un JOB le cui info sono accessibili al seguente link: https://1
 ```python
 from elasticsearch import Elasticsearch
 import json
+import time
 
 es = Elasticsearch(
     ['localhost', '10.10.10.52'],
@@ -509,9 +518,13 @@ es = Elasticsearch(
     port=9200,
 )
 
-
+now = time.time()
 res = es.search(index="main", body={"query": { "bool": { "must": [  {"match": {"protocol":"UDP"}}, {"match": {"connectorname":"TenableAlfa"}}, ]  }   }},size=600)
-#print(res)
+now2 = time.time()
+full_time = now2 - now
+print("full query time (s): ")
+print(full_time)
+
 #print("queryTime: ",res['took'] )
 print("Got %d Hits:" % res['hits']['total']['value'])
 
@@ -532,7 +545,7 @@ L'output contenente i JSON Object (risultato della query) viene inserito nel fil
 
 res["took"] rappresenta il Query Time
 
-![GitHub Logo](images/Immagine1.png)
+![GitHub Logo](images/immagine1.png)
 
 ---
 
@@ -544,7 +557,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-| -------------------------|:--------------------:|:----------------------------:|:-----------------------:|
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
 | Query time(ms)           | 46                   | 29                           | 30                      |
 | Full execution query(ms) | 232,22               | 139,00                       | 165,00                  |
 
@@ -552,7 +565,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test2:** index="main" port=80 AND pluginname="Nessus SYN scanner"
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
 | Query time(ms)           | 126                  | 96                           | 88                      |
 | Full execution query(ms) | 309,71               | 227,26                       | 218,24                  |
 
@@ -560,7 +573,7 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test3:** index="main" AND connectorname=NESSUS_B AND protocol=TCP AND port=80
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
 | Query time(ms)           | 45                   | 54                           | 68                      |
 | Full execution query(ms) | 216,70               | 177,48                       | 193,23                  |
 
@@ -568,6 +581,80 @@ Nota: Full execution query time tiene conto anche dei tempi per l'invio della ri
 ### **Test4:** index="main" AND protocol=UDP AND connectorname=TenableAlfa
 
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
-|--------------------------|:--------------------:|:----------------------------:|:-----------------------:|
+|--------------------------|:--------------------:|-----------------------------:|------------------------:|
 | Query time(ms)           | 41                   | 48                           | 56                      |
 | Full execution query(ms) | 254,36               | 205,29                       | 187,41                  |
+
+
+
+---
+
+# Incremento del DB a 1.000.000 di elementi
+
+## Script Python utilizzato
+
+```python
+import json
+import time
+
+def main():
+    f2 = open("testSplunkEsteso.json","a")
+    max = 1000000
+    i = 0
+
+    while i < max: 
+        f = open("testSplunk.json","r")
+        b = f.readline()
+        while (b):
+            if i >= max:
+                break
+            else:
+                line_dict = json.loads(b)
+                line_dict['ts'] = time.time() * 1000  # convertito in millisecondi
+                line_json = json.dumps(line_dict)
+                f2.write(line_json)
+                f2.write('\n')
+                b = f.readline()
+                i+=1
+
+        f.close()
+    f2.close()
+
+
+main()
+```
+---
+
+# Confronto Performance Splunk/Elasticsearch eseguendo le query con script Python (su DB esteso)
+
+
+### **Test1:** index="main" port=8080
+
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Full execution query(ms) | 504,29               | 246,09                       | 298,74                  |
+
+
+### **Test2:** index="main" port=80 AND pluginname="Nessus SYN scanner"
+
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Full execution query(ms) | 837,49               | 526,40                       | 490,25                  |
+
+
+### **Test3:** index="main" AND connectorname=NESSUS_B AND protocol=TCP AND port=80
+
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Full execution query(ms) | 654,71               | 437,94                       | 274,87                  |
+
+
+### **Tes4:** index="main" AND protocol=UDP AND connectorname=TenableAlfa
+
+
+|                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
+| -------------------------|:--------------------:|-----------------------------:|------------------------:|
+| Full execution query(ms) | 643,36               | 487,92                       | 292,21                  |
