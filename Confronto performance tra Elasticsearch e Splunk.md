@@ -658,3 +658,127 @@ main()
 |                          | Splunk               | Elasticsearch (no tuning)    | Elasticsearch (tuning)  |
 | -------------------------|:--------------------:|-----------------------------:|------------------------:|
 | Full execution query(ms) | 643,36               | 487,92                       | 292,21                  |
+
+
+---
+
+# Altre query testate
+
+
+## index="main" | stats count by protocol
+
+
+### Script utilizzato per Elasticsearch
+
+```python
+from elasticsearch import Elasticsearch
+import json
+import time
+
+es = Elasticsearch(
+    ['localhost', '10.10.10.52'],
+    http_auth=('elastic', 'ciaociao95'),
+    scheme="http",
+    port=9200,
+)
+
+now = time.time()
+res = es.search(index="main", body={"aggs": {"2": { "terms": {"field": "protocol.keyword","order": {"_count": "desc"},"size": 24 } } }},size=24)
+now2 = time.time()
+print("time full: ")
+print(now2-now)
+
+
+with open ('out.json', 'w', encoding="utf-8") as result:
+     for hit in res['aggregations']['2']['buckets']:
+        result.write(json.dumps(hit))
+        result.write('\n')
+```
+
+![GitHub Logo](images/Immagine2.png)
+
+
+
+### Script utilizzato per Splunk 
+
+```python
+import requests
+import time
+
+data1 = {
+       'search': 'search index="main" | stats count by protocol',
+       'output_mode': 'json',
+       'preview': 'false'
+     }
+now = time.time()
+response = requests.post('https://10.10.10.52:8089/servicesNS/admin/search/search/jobs/export', data=data1, verify=False, auth=('admin', 'password'))
+now2 = time.time()
+print("full query time: ")
+print(now2-now)
+
+print(type(response))
+
+#print(response)
+i = 0
+
+with open ('out.json', 'w', encoding="utf-8") as result:
+   result.write(response.text)
+```
+
+![GitHub Logo](images/Immagine3.png)
+
+
+
+
+|                          | Splunk               | Elasticsearch (tuning)     |             
+| -------------------------|:--------------------:|-----------------:|
+| Full execution query(ms) | 2951                 | 221              |                             
+
+
+
+---
+
+
+# Query Elasticsearch in JAVA
+
+### **Test1:** index="main" port=8080
+
+
+|                           | Elasticsearch (tuning)    | 
+|:-------------------------:|:-------------------------:|
+| Full execution query(ms)  | 312                       |
+
+
+
+### **Test2:** index="main" port=80 AND pluginname="Nessus SYN scanner"
+
+|                           | Elasticsearch (tuning)    | 
+|:-------------------------:|:-------------------------:|
+| Full execution query(ms)  | 334                       |
+
+
+
+### **Test3:** index="main" AND connectorname=NESSUS_B AND protocol=TCP AND port=80
+
+
+
+|                           | Elasticsearch (tuning)    | 
+|:-------------------------:|:-------------------------:|
+| Full execution query(ms)  | 342                       |
+
+
+
+### **Tes4:** index="main" AND protocol=UDP AND connectorname=TenableAlfa
+
+
+|                           | Elasticsearch (tuning)    | 
+|:-------------------------:|:-------------------------:|
+| Full execution query(ms)  | 305                       |
+
+
+
+### **Altre query testate:** index="main" | stats count by protocol
+
+|                           | Elasticsearch (tuning)    | 
+|:-------------------------:|:-------------------------:|
+| Full execution query(ms)  | 317                       |
