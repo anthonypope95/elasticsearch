@@ -677,7 +677,7 @@ import time
 
 es = Elasticsearch(
     ['localhost', '10.10.10.52'],
-    http_auth=('elastic', 'ciaociao95'),
+    http_auth=('elastic', 'password'),
     scheme="http",
     port=9200,
 )
