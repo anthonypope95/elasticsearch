@@ -32,7 +32,7 @@ utilizzando le credenziali dell'utente elastic
 Recarsi nella sezione security di kibana per assegnare i ruoli agli utenti
 
 
-![Screenshot](Cattura1.png)
+![Screenshot](images/Cattura1.png)
 
 ---
 
